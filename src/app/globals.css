@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+:root {
+  --color-surface-0: #0a0c13;
+  --color-surface-1: #11131c;
+  --color-surface-2: #181b28;
+  --color-surface-3: #222639;
+  --color-border: #272b40;
+  --color-border-subtle: #1e2235;
+  --color-text: #eef0f7;
+  --color-text-muted: #7d829a;
+  --color-accent: #7c5cff;
+  --color-accent-light: #9b80ff;
+  --color-accent-contrast: #ffffff;
+  --color-danger: #ff5470;
+
+  /* AI bubble palette */
+  --color-ai-surface: #151828;
+  --color-ai-border: #252945;
+  --color-ai-glow: rgba(124, 92, 255, 0.06);
+
+  /* Glass */
+  --glass-bg: rgba(17, 19, 28, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.06);
+
+  --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+  --font-body: "Inter", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-surface-0);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(124, 92, 255, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(124, 92, 255, 0.04) 0%, transparent 50%);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid var(--glass-border);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* ── Animations ─────────────────────────────── */
+
+@keyframes pulse-ring {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 84, 112, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 84, 112, 0);
+  }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 1.6s ease-in-out infinite;
+}
+
+@keyframes bounce-dot {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-bounce-dot {
+  animation: bounce-dot 1.2s ease-in-out infinite;
+}
+
+/* Message fade-in slide */
+@keyframes msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-msg-in {
+  animation: msg-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Subtle shimmer for empty-state icon */
+@keyframes shimmer {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
