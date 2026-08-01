@@ -43,32 +43,36 @@ export function useChats() {
     }
   }, []);
 
-  const persist = useCallback((next: Chat[]) => {
-    setChats(next);
-    saveLocal(next);
-  }, []);
+  // Persist on every change instead of pairing each mutator with its own
+  // read-then-write of `chats` from render scope — mutators below use
+  // functional setState updates so they always see the true current state,
+  // not a stale closure snapshot (see newChat/appendMessage).
+  useEffect(() => {
+    saveLocal(chats);
+  }, [chats]);
 
   const newChat = useCallback(() => {
     const chat = makeChat();
-    persist([chat, ...chats]);
+    setChats((prev) => [chat, ...prev]);
     setActiveChatId(chat.id);
     return chat.id;
-  }, [chats, persist]);
+  }, []);
 
-  const removeChat = useCallback(
-    (id: string) => {
-      const next = chats.filter((c) => c.id !== id);
-      persist(next);
-      if (activeChatId === id) {
-        setActiveChatId(next[0]?.id ?? null);
-      }
-    },
-    [chats, activeChatId, persist],
-  );
+  const removeChat = useCallback((id: string) => {
+    setChats((prev) => {
+      const next = prev.filter((c) => c.id !== id);
+      setActiveChatId((current) => (current === id ? (next[0]?.id ?? null) : current));
+      return next;
+    });
+  }, []);
 
-  const appendMessage = useCallback(
-    (chatId: string, message: ChatMessage) => {
-      const next = chats.map((c) => {
+  const appendMessage = useCallback((chatId: string, message: ChatMessage) => {
+    // Functional update: without this, a message sent right after
+    // ensureActiveChat() creates a brand-new chat can run against a closure
+    // where `chats` was still empty (captured before that chat existed),
+    // silently discarding both the new chat and the message.
+    setChats((prev) =>
+      prev.map((c) => {
         if (c.id !== chatId) return c;
         const isFirstMessage = c.messages.length === 0;
         return {
@@ -77,24 +81,18 @@ export function useChats() {
           messages: [...c.messages, message],
           updatedAt: new Date().toISOString(),
         };
-      });
-      persist(next);
-    },
-    [chats, persist],
-  );
+      }),
+    );
+  }, []);
 
   const ensureActiveChat = useCallback(() => {
     if (activeChatId && chats.some((c) => c.id === activeChatId)) return activeChatId;
     return newChat();
   }, [activeChatId, chats, newChat]);
 
-  const renameChat = useCallback(
-    (id: string, newTitle: string) => {
-      const next = chats.map((c) => (c.id === id ? { ...c, title: newTitle } : c));
-      persist(next);
-    },
-    [chats, persist],
-  );
+  const renameChat = useCallback((id: string, newTitle: string) => {
+    setChats((prev) => prev.map((c) => (c.id === id ? { ...c, title: newTitle } : c)));
+  }, []);
 
   return {
     chats,
